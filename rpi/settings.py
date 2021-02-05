@@ -23,7 +23,7 @@ class Neo:
         self.mainColor = ''
         self.secundairColor = '[0,0,0]'
 
-        
+
 
 
     def bitSender(self, bytes):
@@ -176,7 +176,5 @@ class Neo:
         self.runBool = False
         self.blinkBool = False
         self.bounceBool = False
-    
-    def shutdown(self):
-        GPIO.cleanup() 
+
 

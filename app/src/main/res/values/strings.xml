@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">leds</string>
+
+    <string-array name="Setting">
+        <item>Still</item>
+        <item>Fade</item>
+        <item>Blink</item>
+        <item>Run</item>
+        <item>Bounce</item>
+        <item>Gradient</item>
+    </string-array>
+</resources>

@@ -16,7 +16,7 @@
         app:enableBrightness="true"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></top.defaults.colorpicker.ColorPickerView>
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <Button
@@ -51,6 +51,7 @@
         android:layout_marginTop="100dp"
         android:layout_marginEnd="45dp"
         android:layout_marginBottom="45dp"
+        android:background="@color/lightGrey"
         android:entries="@array/Setting"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

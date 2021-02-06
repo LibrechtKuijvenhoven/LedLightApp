@@ -10,12 +10,15 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Spinner;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import top.defaults.colorpicker.ColorPickerView;
 
 public class MainActivity extends AppCompatActivity {
-    private final String ip = "192.168.1.229";
 
     //initiate the buttons
     private Button secondColor;
@@ -26,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private int firstButtonColor;
 
     private Boolean firstColorBool = true;
+    private ClassLoader ClassLoaderUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
      * @return converted color : int[]
      */
     private int[] colorCode(int color){
-
         return new int[]{Color.blue(color), Color.green(color), Color.red(color)};
     }
 
@@ -135,8 +138,10 @@ public class MainActivity extends AppCompatActivity {
      */
     private String buildUrl (int [] colorCode, String setting){
         String uri = String.format("%s/%s/%s" ,setting , arrayToString(colorCode), arrayToString(colorCode(secondButtonColor)));
-        return String.format("http://%s:5000/%s", this.ip, uri);
+        return String.format("http://%s:5000/%s", getResource(), uri);
     }
+
+
 
     /**
      * Converts array to string
@@ -147,6 +152,22 @@ public class MainActivity extends AppCompatActivity {
      */
     private String arrayToString(int[] list){
         return Arrays.toString(list).replace("[","").replace("]","").replace(", ",",");
+    }
+
+    /**
+     * Get the ip addres from assets/config.txt
+     *
+     * @return ip : String
+     */
+    String getResource() {
+        String read = null;
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(getAssets().open("config.txt"), StandardCharsets.UTF_8))) {
+            read = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return read;
     }
 
     /*

@@ -1,16 +1,14 @@
-package com.example.leds;
+package com.example.leds.handlers;
 
 import android.os.AsyncTask;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.concurrent.Executor;
 
 public class HTTPHandler extends AsyncTask<String, Void, URL> {
 
     /**
-     * Makes http reqeust to raspberry pi
+     * Makes http request to raspberry pi
      * with given url
      *
      * @param strings : String[]
@@ -25,7 +23,8 @@ public class HTTPHandler extends AsyncTask<String, Void, URL> {
             con.setRequestMethod("GET");
             con.connect();
             System.out.println(con.getResponseCode());
-        }catch (IOException e) {
+            Thread.sleep(200);
+        }catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
         return null;

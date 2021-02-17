@@ -1,22 +1,36 @@
-package com.example.leds;
+ package com.example.leds;
 
-import androidx.appcompat.app.AppCompatActivity;
+ import android.annotation.SuppressLint;
+ import android.content.Context;
+ import android.content.Intent;
+ import android.graphics.Color;
+ import android.os.Bundle;
+ import android.view.LayoutInflater;
+ import android.view.Menu;
+ import android.view.MenuInflater;
+ import android.view.MenuItem;
+ import android.view.View;
+ import android.widget.AdapterView;
+ import android.widget.Button;
+ import android.widget.PopupWindow;
+ import android.widget.SeekBar;
+ import android.widget.Spinner;
+ import android.widget.Toast;
 
-import android.graphics.Color;
+ import androidx.annotation.NonNull;
+ import androidx.appcompat.app.AppCompatActivity;
+ import androidx.constraintlayout.widget.ConstraintLayout;
 
-import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.Spinner;
+ import com.example.leds.handlers.ColorHandler;
+ import com.example.leds.handlers.HTTPHandler;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+ import java.io.BufferedReader;
+ import java.io.IOException;
+ import java.io.InputStreamReader;
+ import java.nio.charset.StandardCharsets;
+ import java.util.Arrays;
 
-import top.defaults.colorpicker.ColorPickerView;
+ import top.defaults.colorpicker.ColorPickerView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,8 +42,13 @@ public class MainActivity extends AppCompatActivity {
     private int secondButtonColor;
     private int firstButtonColor;
 
+    private String lastUsedLink = "http://192.168.1.229:5000/Still/255,0,255/0,0,0";
+    private boolean connection = false;
+
     private Boolean firstColorBool = true;
-    private ClassLoader ClassLoaderUtil;
+
+    private final ColorHandler led = new ColorHandler();
+    SeekBar brightnessBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +68,17 @@ public class MainActivity extends AppCompatActivity {
         secondColor.setBackgroundColor(Color.GRAY);
         firstColor.setBackgroundColor(Color.GRAY);
 
+
+
         //set listener for setting
         setting.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 String chosenSetting = setting.getItemAtPosition(position).toString();
-                sendRequest(colorCode(firstButtonColor), chosenSetting);
+                if (chosenSetting.equals("Custom")){
+                    showPopup();
+                }
+                sendRequest(buildUrl(led.colorCode(firstButtonColor), chosenSetting));
             }
             public void onNothingSelected(AdapterView<?> parent) {    }
         });
@@ -63,8 +87,68 @@ public class MainActivity extends AppCompatActivity {
             String chosenSetting = setting.getSelectedItem().toString();
             String hexColor = String.format("#%06X", (0xFFFFFF & color));
             setColor(color, hexColor);
-            sendRequest(colorCode(firstButtonColor), chosenSetting);
+            sendRequest(buildUrl(led.colorCode(firstButtonColor), chosenSetting));
         });
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options,menu);
+        return true;
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        System.out.println(item);
+        switch (item.getItemId()){
+            case R.id.turnServerOff:
+                sendRequest(String.format("http://%s:5000/shutdown", getResource()));
+                return true;
+            case R.id.brightness:
+                showBrightnessBar(item);
+                return true;
+            case R.id.connect:
+                onConnectionChange(item);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void showBrightnessBar(MenuItem item){
+        brightnessBar = new SeekBar(this);
+        brightnessBar.setMax(31);
+        item.setActionView(brightnessBar);
+        item.expandActionView();
+    }
+
+    public void showPopup(){
+        LayoutInflater inflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        View layout = inflater.inflate(R.layout.popup, findViewById(R.id.sendButton), true);
+        new PopupWindow(layout, ConstraintLayout.LayoutParams.WRAP_CONTENT,ConstraintLayout.LayoutParams.WRAP_CONTENT,true);
+
+        Intent intent = new Intent(this, PopUpActivity.class);
+        startActivity(intent);
+
+    }
+
+    private void onConnectionChange( MenuItem item){
+        if(connection){
+            item.setIcon(R.drawable.ic_menu_toggle_off_filled);
+            connection = false;
+            Toast.makeText(this,"Connection broken.",Toast.LENGTH_SHORT).show();
+        }else {
+            item.setIcon(R.drawable.ic_menu_toggle_on_filled);
+            connection = true;
+            Toast.makeText(this,"Connection made.",Toast.LENGTH_SHORT).show();
+        }
+
+        item.setChecked(connection);
+
     }
 
     /**
@@ -77,54 +161,28 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setColor(int color, String hexColor){
         if (firstColorBool){
-            firstColor.setBackgroundColor(rgb(hexColor));
+            firstColor.setBackgroundColor(led.rgb(hexColor));
             firstButtonColor = color;
         }else{
-            secondColor.setBackgroundColor(rgb(hexColor));
+            secondColor.setBackgroundColor(led.rgb(hexColor));
             secondButtonColor = color;
         }
     }
 
     /**
-     * Coverts color in int form to int array form
-     * color composition are Blue,Green,Red
+     * parses given url to the HTTPHandler
      *
-     * @param color : int
-     *
-     * @return converted color : int[]
-     */
-    private int[] colorCode(int color){
-        return new int[]{Color.blue(color), Color.green(color), Color.red(color)};
-    }
-
-    /**
-     * Coverts color in string form to int hex
-     * color composition are Red,Green,Blue
-     *
-     * @param hex : String
-     *
-     * @return converted color : int
-     */
-    public static int rgb(String hex) {
-        int color = (int) Long.parseLong(hex.replace("#", ""), 16);
-        int r = (color >> 16) & 0xFF;
-        int g = (color >> 8) & 0xFF;
-        int b = (color) & 0xFF;
-        return Color.rgb(r, g, b);
-    }
-
-    /**
-     * Calls buildUrl() and with given url parses url to the HTTPHandler
-     *
-     *
-     * @param colorCode : int[]
-     * @param setting : String
+     * @param link : String
      *
      * @return Nothing
      */
-    private void sendRequest(int [] colorCode, String setting){
-        String builded = buildUrl(colorCode, setting);
-        new HTTPHandler().execute(builded);
+    private void sendRequest(String link){
+        if(connection) {
+            if (!link.equals(lastUsedLink)) {
+                lastUsedLink = link;
+                new HTTPHandler().execute(link);
+            }
+        }
     }
 
     /**
@@ -137,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
      * @return Url : String
      */
     private String buildUrl (int [] colorCode, String setting){
-        String uri = String.format("%s/%s/%s" ,setting , arrayToString(colorCode), arrayToString(colorCode(secondButtonColor)));
+        String uri = String.format("%s/%s/%s" ,setting , arrayToString(colorCode), arrayToString(led.colorCode(secondButtonColor)));
         return String.format("http://%s:5000/%s", getResource(), uri);
     }
 

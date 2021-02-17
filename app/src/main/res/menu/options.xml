@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/connect"
+        android:title="@string/switchOn"
+        android:icon="@drawable/ic_menu_toggle_off_filled"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/turnServerOff"
+        android:title="@string/turnoff"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/brightness"
+        android:title="@string/brightness"
+        app:showAsAction="collapseActionView"
+        />
+</menu>

@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">leds</string>
+    <string name="brightness">brightness</string>
+    <string name="turnoff">turnOff</string>
+    <string name="switchOn">Switch</string>
 
     <string-array name="Setting">
         <item>Still</item>
@@ -8,5 +11,7 @@
         <item>Run</item>
         <item>Bounce</item>
         <item>Gradient</item>
+        <item>Rainbow</item>
+        <item>Custom</item>
     </string-array>
 </resources>

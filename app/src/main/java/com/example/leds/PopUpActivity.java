@@ -17,7 +17,16 @@ import com.example.leds.handlers.ColorHandler;
 import top.defaults.colorpicker.ColorPickerView;
 
 public class PopUpActivity extends AppCompatActivity {
-
+/*****
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *                                                             *
+ *  THIS ACTIVITY FOR THE POP UP DOES NOT WORK YET.            *
+ *                                                             *
+ *  STATUS: PUT ASIDE FOR NOW                                  *
+ *                                                             *
+ *                                                             *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *****/
     private ColorHandler led;
     public  ColorPickerView popUpColorPickerView;
     public  Button popUpchosenButton;

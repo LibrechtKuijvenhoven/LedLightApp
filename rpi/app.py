@@ -1,9 +1,10 @@
 from flask import Flask
-from settings import *
+import settings
 import os
 
 #initialize Flask
 app = Flask(__name__)
+
 
 # redundant
 @app.route('/')
@@ -18,9 +19,9 @@ def shutdown():
 #parse the settings and colors to the set
 @app.route('/<method>/<color>/<color2>')
 def method(method, color, color2):
-    setting = Setting()
+    setting = settings.Setting()
     setting.setColors(color, color2)
-    setting.setMethod(method)
+    setting.setSetting(method)
     return "Empty"
 
 #run server

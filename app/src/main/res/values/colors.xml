@@ -9,4 +9,5 @@
     <color name="grey">#A1808080</color>
     <color name="lightGrey">#A1BFBFBF</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="toolbar">#336345</color>
 </resources>
